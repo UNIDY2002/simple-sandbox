@@ -22,11 +22,18 @@ Add `swapaccount=1` to `GRUB_CMDLINE_LINUX_DEFAULT` section in `/etc/default/gru
 GRUB_CMDLINE_LINUX_DEFAULT="quiet splash cgroup_enable=memory swapaccount=1"
 ```
 
-Some distro [enables cgroup v2 by default in their new versions](https://rootlesscontaine.rs/getting-started/common/cgroup2/), including Arch Linux (since April 2021), Fedora (since 31) and Debian. If you cannot find the directory `/sys/fs/cgroup/memory/`, this is the case for you. In this case, you also need to add the parameter `systemd.unified_cgroup_hierarchy=0` to enable cgroup v1: 
+Some distro [enables cgroup v2 by default in their new versions](https://rootlesscontaine.rs/getting-started/common/cgroup2/), including Arch Linux (since April 2021), Fedora (since 31) and Debian. If you cannot find the directory `/sys/fs/cgroup/memory/`, this is the case for you. In this case, you also need to add the parameter `systemd.unified_cgroup_hierarchy=0` to enable cgroup v1 and the parameter `SYSTEMD_CGROUP_ENABLE_LEGACY_FORCE=1` to [force systemd to work with cgroup v1](https://github.com/systemd/systemd/issues/30852): 
 
 ```bash
-GRUB_CMDLINE_LINUX_DEFAULT="quiet splash cgroup_enable=memory swapaccount=1 systemd.unified_cgroup_hierarchy=0"
+GRUB_CMDLINE_LINUX_DEFAULT="quiet splash cgroup_enable=memory swapaccount=1 SYSTEMD_CGROUP_ENABLE_LEGACY_FORCE=1 systemd.unified_cgroup_hierarchy=0"
 ```
+
+<details>
+  <summary>Troubleshooting if you didn't set <code>SYSTEMD_CGROUP_ENABLE_LEGACY_FORCE=1</code> and cannot boot:</summary>
+  <p>Enter the GRUB menu during reboot and edit the boot command of your OS. Now you can add the parameter (temporarily) and boot successfully.</p>
+  <p>Do not forget to update <code>/etc/default/grub</code> after you boot, or you will need to manually edit the command on every boot.</p>
+</details>
+
 
 And then run
 ```bash
